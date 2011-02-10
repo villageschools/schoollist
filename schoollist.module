@@ -1,0 +1,77 @@
+<?php
+	// $Id$
+
+//    include_once dirname(__file__) . "/../../themes/vst/utils.php";
+    
+    /**
+    * Display help and module information
+    * @param path which path of the site we're displaying help
+    * @param arg array that holds the current path as would be returned from arg() function
+    * @return help text for the path
+    */
+    function schoollist_help($path, $arg) 
+    {
+        $output = ''; 
+      
+        switch ($path) 
+        {
+            case ("admin/help#school"):
+            $output = '<p>'.  t("Defines an editable school object") .'</p>';
+            break;
+        }
+
+        return $output;
+    }
+
+
+    /**
+    * Valid permissions for this module
+    * @return array An array of valid permissions for the onthisdate module
+    */
+    function schoollist_perm() 
+    {
+        return array('administer school content');
+    }
+    
+    
+    /**
+    * Implementation of hook_block().
+    * @param string $op one of "list", "view", "save" and "configure"
+    * @param integer $delta code to identify the block
+    * @param array $edit only for "save" operation
+    */
+    function schoollist_block($op = 'list', $delta = 0, $edit = array()) 
+    {
+        $block = array();
+        
+        switch ($op)
+        {
+            case ("list"):
+            {
+                $block[0]["info"] = t("School List");
+                break;
+            }
+            
+            case ("view"):
+            {
+                $block["subject"] = "asdfasdf";  
+                $block["content"] = "";
+                
+                $dbq = pager_query(db_rewrite_sql("SELECT n.nid, n.created FROM {node} n WHERE n.type = 'school' AND n.status = 1 ORDER BY n.created ASC"));
+                while ($node = db_fetch_object($dbq)) 
+                {
+                    $school = node_load(array('nid' => $node->nid));
+                    $block["content"] .= "<div class=\"school-preview\">" .
+                                            ($school->field_picture[0]["filepath"] != "" ? "<a href=\"" . $variables["base_path"] . "schools/" . $school->field_name[0]["value"] . "\"><img class=\"school-photo\" src=\"" . $variables["base_path"] . $school->field_picture[0]["filepath"] . "\" /></a>" : "") . 
+                                            "<h3>" . $school->title . "</h3>
+                                            <div class=\"school-teaser\">" . $school->field_teaser[0]["value"] . "</div>
+                                            <div style=\"margin-top: 10px;\"><a href=\"" . $variables["base_path"] . "schools/" . $school->field_name[0]["value"] . "\">more &raquo;</a>" . ($school->field_point[0]["value"] != "" ? "<a href=\"" . $variables["base_path"] . "locations.html#" . $school->field_name[0]["value"] . "\" style=\"float: right; display: block; vertical-align: bottom;\">view on map &raquo;</a>" : "") . "</div>
+                                          </div>";
+                }
+
+                break;
+            }
+        }  
+
+        return $block;
+    }

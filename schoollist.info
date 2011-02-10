@@ -1,0 +1,5 @@
+; $Id$
+name = School List
+description = Outputs a block with the list of schools and their teasers
+core = 6.x
+package = Other
